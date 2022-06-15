@@ -21,7 +21,7 @@ jobs:
     - name: Build Docker Image
       uses: docker/build-push-action@v3.0.0
       with:
-        context: "$GITHUB_WORKSPACE/"
+        context: .
         file: ./Dockerfile
         tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
         outputs: type=docker,dest=/tmp/image.tar
