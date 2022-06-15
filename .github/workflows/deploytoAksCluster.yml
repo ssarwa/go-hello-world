@@ -32,7 +32,7 @@ jobs:
         name: image
         path: /tmp/image.tar
 
-  scan:
+  inline-scan:
     runs-on: ubuntu-latest
     needs: build
     steps: 
@@ -48,32 +48,58 @@ jobs:
         docker image ls -a
 
     - name: Scan image
+      id: scan
       uses: sysdiglabs/scan-action@v3
       with:
         image-tag: ${{ env.IMAGE_NAME }}:${{ github.sha }}
         sysdig-secure-token: ${{ secrets.SYSDIG_SECURE_TOKEN }}
+        sysdig-secure-url: ${{ env.SYSDIG_SECURE_URL }}
         input-type: docker-archive
         input-path: /tmp/image.tar
 
-    # - name: Scan image
-    #   id: scan
-    #   uses: sysdiglabs/scan-action@v3
-    #   with:
-    #     image-tag: ${{ env.IMAGE_NAME }}:${{ github.sha }}
-    #     sysdig-secure-token: ${{ secrets.SYSDIG_SECURE_TOKEN }}
-    #     sysdig-secure-url: ${{ env.SYSDIG_SECURE_URL }}
-    #     input-type: docker-daemon
-    #     run-as-user: root
+    - name: Upload Sarif Report
+      uses: github/codeql-action/upload-sarif@v1
+      if: always()
+      with:
+        sarif_file: ${{ steps.scan.outputs.sarifReport }}
 
-    # - name: Upload Sarif Report
-    #   uses: github/codeql-action/upload-sarif@v1
-    #   if: always()
-    #   with:
-    #     sarif_file: ${{ steps.scan.outputs.sarifReport }}
+  push:
+      runs-on: ubuntu-latest
+      needs: [build,inline-scan]
+      steps:
+      - uses: azure/login@v1
+        name: Login to Azure
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Create ACR
+        id: create-acr
+        run: |
+          az acr create -n azsysdigcr -g azsysdigcrbe0b-rg --location "West Central US" --sku Standard --admin-enabled
+          echo "::set-output name=acr_username::`az acr credential show -n azsysdigcr --query username | xargs`"
+          echo "::set-output name=acr_password::`az acr credential show -n azsysdigcr --query passwords[0].value | xargs`"
+          echo "::add-mask::`az acr credential show -n azsysdigcr --query passwords[0].value | xargs`"
+
+      - uses: azure/docker-login@v1
+        with:
+          login-server: azsysdigcr.azurecr.io
+          username: ${{ steps.create-acr.outputs.acr_username }}
+          password: ${{ steps.create-acr.outputs.acr_password }}
+    
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v3.0.0
+        with:
+          name: image
+          path: /tmp
+      
+      - name: Load Docker image
+        run: |
+          docker load --input /tmp/image.tar
+          docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, inline-scan, push]
     steps:
     - uses: azure/login@v1
       with:
