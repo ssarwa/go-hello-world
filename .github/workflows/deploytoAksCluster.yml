@@ -39,7 +39,7 @@ jobs:
     - name: Download a Build Artifact
       uses: actions/download-artifact@v3.0.0
       with:
-        name: image.tar
+        name: image
         path: /tmp
     
     - name: Load Docker image
