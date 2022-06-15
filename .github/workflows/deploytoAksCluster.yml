@@ -1,15 +1,36 @@
 on: [push]
+
+env:
+  IMAGE_NAME: "azsysdigcr.azurecr.io/go-hello-world"
+  SYSDIG_SECURE_URL: "https://us2.app.sysdig.com"
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@master
-      name: Checkout Code
+    steps: 
+    - name: Checkout Code
+      uses: actions/checkout@master
 
-    - name: Build image
+    - name: Build the Docker image
       id: build-image
       run: |
-        docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t azsysdigcr.azurecr.io/azurecluster:${{ github.sha }} --label dockerfile-path=Dockerfile    
+        docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t ${{ env.IMAGE_NAME }}:${{ github.sha }} --label dockerfile-path=Dockerfile
+
+    - name: Scan image
+      id: scan
+      uses: sysdiglabs/scan-action@v3
+      with:
+        image-tag: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+        sysdig-secure-token: ${{ secrets.SYSDIG_SECURE_TOKEN }}
+        sysdig-secure-url: ${{ env.SYSDIG_SECURE_URL }}
+        input-type: docker-daemon
+        run-as-user: root
+
+    - name: Upload Sarif Report
+      uses: github/codeql-action/upload-sarif@v1
+      if: always()
+      with:
+        sarif_file: ${{ steps.scan.outputs.sarifReport }}
 
   deploy:
     runs-on: ubuntu-latest
@@ -36,13 +57,13 @@ jobs:
     # - name: Build and push image to ACR
     #   id: build-image
     #   run: |
-    #     docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t azsysdigcr.azurecr.io/azurecluster:${{ github.sha }} --label dockerfile-path=Dockerfile
-    #     docker push azsysdigcr.azurecr.io/azurecluster:${{ github.sha }}
+    #     docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t azsysdigcr.azurecr.io/go-hello-world:${{ github.sha }} --label dockerfile-path=Dockerfile
+    #     docker push azsysdigcr.azurecr.io/go-hello-world:${{ github.sha }}
     
     # - uses: azure/k8s-set-context@v1
     #   id: login
     #   with:
-    #      kubeconfig: ${{ secrets.aks_azurecluster_kubeConfig }}
+    #      kubeconfig: ${{ secrets.aks_go-hello-world_kubeConfig }}
     
     # - name: Create namespace
     #   run: |
@@ -58,7 +79,7 @@ jobs:
     #     container-registry-url: azsysdigcr.azurecr.io
     #     container-registry-username: ${{ steps.create-acr.outputs.acr_username }}
     #     container-registry-password: ${{ steps.create-acr.outputs.acr_password }}
-    #     secret-name: azureclusterdockerauth
+    #     secret-name: go-hello-worlddockerauth
        
     # - uses: azure/k8s-deploy@v1.2
     #   with:
@@ -67,6 +88,6 @@ jobs:
     #       manifests/deployment.yml
     #       manifests/service.yml
     #     images: |
-    #       azsysdigcr.azurecr.io/azurecluster:${{ github.sha }}
+    #       azsysdigcr.azurecr.io/go-hello-world:${{ github.sha }}
     #     imagepullsecrets: |
-    #       azureclusterdockerauth   
+    #       go-hello-worlddockerauth   
