@@ -52,7 +52,7 @@ jobs:
       with:
         image-tag: ${{ env.IMAGE_NAME }}:${{ github.sha }}
         sysdig-secure-token: ${{ secrets.SYSDIG_SECURE_TOKEN }}
-        input-type: docker
+        input-type: docker-archive
         input-path: /tmp/image.tar
 
     # - name: Scan image
