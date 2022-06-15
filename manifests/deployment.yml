@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: "azurecluster-327d"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: "azurecluster-327d"
+  template:
+    metadata:
+      labels:
+        app: "azurecluster-327d"
+    spec:
+      containers:
+        - name: "azurecluster-327d"
+          image: "azsysdigcr.azurecr.io/azurecluster"
+          ports:
+          - containerPort: 8080
