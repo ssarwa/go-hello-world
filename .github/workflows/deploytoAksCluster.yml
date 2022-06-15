@@ -24,7 +24,7 @@ jobs:
         context: .
         file: ./Dockerfile
         tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
-        outputs: type=docker-archive,dest=/tmp/image.tar
+        outputs: type=docker,dest=/tmp/image.tar
       
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3.1.0
@@ -52,7 +52,7 @@ jobs:
       with:
         image-tag: ${{ env.IMAGE_NAME }}:${{ github.sha }}
         sysdig-secure-token: ${{ secrets.SYSDIG_SECURE_TOKEN }}
-        input-type: docker-archive
+        input-type: docker
         input-path: /tmp/image.tar
 
     # - name: Scan image
