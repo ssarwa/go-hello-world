@@ -123,8 +123,8 @@ jobs:
         container-registry-password: ${{ needs.push.outputs.acrPassword }}
         secret-name: ${{ env.IMAGE_PULL_SECRET }}
     
-    # - name: Checkout Code
-    #   uses: actions/checkout@master
+    - name: Checkout Code
+      uses: actions/checkout@master
     
     - name: Replace Image
       run: |
