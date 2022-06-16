@@ -125,7 +125,7 @@ jobs:
 
     - name: Integrate ACR and AKS
       run: |
-        ACRResourceID=(az acr show -n ${{ env.REGISTRY_NAME }} -g ${{ env.CLUSTER_RESOURCE_GROUP }} --query id -o tsv)
+        ACRResourceID=$(az acr show -n ${{ env.REGISTRY_NAME }} -g ${{ env.CLUSTER_RESOURCE_GROUP }} --query id -o tsv)
         az aks update -n ${{ env.CLUSTER_NAME }} -g ${{ env.CLUSTER_RESOURCE_GROUP }} --attach-acr $ACRResourceID
 
     # - name: Create Image Pull Secret
