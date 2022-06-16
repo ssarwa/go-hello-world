@@ -103,10 +103,16 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - uses: azure/k8s-set-context@v1
-      id: login
+    # - uses: azure/k8s-set-context@v1
+    #   id: login
+    #   with:
+    #      kubeconfig: ${{ secrets.AKS_AZURECLUSTER_KUBECONFIG }}
+
+    - uses: azure/aks-set-context@v1
       with:
-         kubeconfig: ${{ secrets.AKS_AZURECLUSTER_KUBECONFIG }}
+        creds: '${{ secrets.AZURE_CREDENTIALS }}'
+        cluster-name: ${{ env.CLUSTER_NAME }}
+        resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
 
     - name: Create namespace
       run: |
@@ -119,7 +125,7 @@ jobs:
 
     - name: Integrate ACR and AKS
       run: |
-        ACRResourceID=(az acr show -n ${{ env.REGISTRY_NAME }} -g ${{ env.CLUSTER_RESOURCE_GROUP }} --query id -o tsv
+        ACRResourceID=(az acr show -n ${{ env.REGISTRY_NAME }} -g ${{ env.CLUSTER_RESOURCE_GROUP }} --query id -o tsv)
         az aks update -n ${{ env.CLUSTER_NAME }} -g ${{ env.CLUSTER_RESOURCE_GROUP }} --attach-acr $ACRResourceID
 
     # - name: Create Image Pull Secret
