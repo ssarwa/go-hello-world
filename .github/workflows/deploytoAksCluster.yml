@@ -3,6 +3,7 @@ on: [push]
 env:
   SYSDIG_SECURE_URL: "https://us2.app.sysdig.com"
   REGISTRY_NAME: "azsysdigcr"
+  LOCATION: "West Central US"
   CLUSTER_NAME: "azure-cluster"
   CLUSTER_RESOURCE_GROUP: "Sysdig-Azure-RG"
   NAMESPACE: "app-ns"
@@ -74,10 +75,10 @@ jobs:
       - name: Create ACR
         id: create-acr
         run: |
-          az acr create -n azsysdigcr -g azsysdigcrbe0b-rg --location "West Central US" --sku Standard --admin-enabled
-          echo "::set-output name=acr_username::`az acr credential show -n azsysdigcr --query username | xargs`"
-          echo "::set-output name=acr_password::`az acr credential show -n azsysdigcr --query passwords[0].value | xargs`"
-          echo "::add-mask::`az acr credential show -n azsysdigcr --query passwords[0].value | xargs`"
+          az acr create -n ${{ env.REGISTRY_NAME }} -g ${{ env.CLUSTER_RESOURCE_GROUP }} --location ${{ env.LOCATION }} --sku Standard --admin-enabled
+          echo "::set-output name=acr_username::`az acr credential show -n ${{ env.REGISTRY_NAME }} --query username | xargs`"
+          echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRY_NAME }} --query passwords[0].value | xargs`"
+          echo "::add-mask::`az acr credential show -n ${{ env.REGISTRY_NAME }} --query passwords[0].value | xargs`"
 
       - name: Login to ACR
         uses: azure/docker-login@v1
@@ -119,14 +120,19 @@ jobs:
             echo `kubectl create namespace ${{ env.NAMESPACE }}`
         fi
 
-    - name: Create Image Pull Secret
-      uses: azure/k8s-create-secret@v1
-      with:
-        namespace: ${{ env.NAMESPACE }}
-        container-registry-url: ${{ env.REGISTRY_NAME }}.azurecr.io
-        container-registry-username: ${{ needs.push.outputs.acrUsername }}
-        container-registry-password: ${{ needs.push.outputs.acrPassword }}
-        secret-name: ${{ env.IMAGE_PULL_SECRET }}
+    - name: Integrate ACR and AKS
+      run: |
+        ACRResourceID=(az acr show -n ${{ env.REGISTRY_NAME }} -g ${{ env.CLUSTER_RESOURCE_GROUP }} --query id -o tsv
+        az aks update -n ${{ env.CLUSTER_NAME }} -g ${{ env.CLUSTER_RESOURCE_GROUP }} --attach-acr $ACRResourceID
+
+    # - name: Create Image Pull Secret
+    #   uses: azure/k8s-create-secret@v1
+    #   with:
+    #     namespace: ${{ env.NAMESPACE }}
+    #     container-registry-url: ${{ env.REGISTRY_NAME }}.azurecr.io
+    #     container-registry-username: ${{ needs.push.outputs.acrUsername }}
+    #     container-registry-password: ${{ needs.push.outputs.acrPassword }}
+    #     secret-name: ${{ env.IMAGE_PULL_SECRET }}
     
     - name: Checkout Code
       uses: actions/checkout@master
@@ -144,5 +150,5 @@ jobs:
           manifests/service.yml
         images: |
           ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.APP_NAME }}:${{ github.sha }}
-        imagepullsecrets: |
-          ${{ env.IMAGE_PULL_SECRET }}
+#        imagepullsecrets: |
+#          ${{ env.IMAGE_PULL_SECRET }}
