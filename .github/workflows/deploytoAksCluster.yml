@@ -102,13 +102,18 @@ jobs:
     #   uses: azure/login@v1
     #   with:
     #     creds: ${{ secrets.AZURE_CREDENTIALS }}
-    
-    - name: Set AKS Cluster Context
-      uses: azure/aks-set-context@v1
+
+    - uses: azure/k8s-set-context@v1
+      id: login
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-        cluster-name: ${{ env.CLUSTER_NAME }}
-        resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
+         kubeconfig: ${{ secrets.AKS_AZURECLUSTER_KUBECONFIG }}
+    
+    # - name: Set AKS Cluster Context
+    #   uses: azure/aks-set-context@v1
+    #   with:
+    #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+    #     cluster-name: ${{ env.CLUSTER_NAME }}
+    #     resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
 
     - name: Create namespace
       run: |
