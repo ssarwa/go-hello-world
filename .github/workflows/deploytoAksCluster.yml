@@ -72,7 +72,7 @@ jobs:
       - name: Create ACR
         id: create-acr
         run: |
-          az acr create -n ${{ env.REGISTRY_NAME }} -g ${{ env.CLUSTER_RESOURCE_GROUP }} --location ${{ env.LOCATION }} --sku Standard --admin-enabled
+          az acr create -n ${{ env.REGISTRY_NAME }} -g ${{ env.CLUSTER_RESOURCE_GROUP }} --location "${{ env.LOCATION }}" --sku Standard --admin-enabled
           echo "::set-output name=acr_username::`az acr credential show -n ${{ env.REGISTRY_NAME }} --query username | xargs`"
           echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRY_NAME }} --query passwords[0].value | xargs`"
           echo "::add-mask::`az acr credential show -n ${{ env.REGISTRY_NAME }} --query passwords[0].value | xargs`"
