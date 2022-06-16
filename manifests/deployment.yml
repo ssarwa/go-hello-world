@@ -1,19 +1,26 @@
 apiVersion : apps/v1
 kind: Deployment
 metadata:
-  name: "azurecluster-327d"
+  name: "go-hello-world"
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: "azurecluster-327d"
+      app: "go-hello-world"
   template:
     metadata:
       labels:
-        app: "azurecluster-327d"
+        app: "go-hello-world"
     spec:
       containers:
-        - name: "azurecluster-327d"
-          image: "azsysdigcr.azurecr.io/azurecluster"
+        - name: "go-hello-world"
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          image: "BUILT_IMAGE"
           ports:
           - containerPort: 8080

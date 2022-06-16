@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-    name: "azurecluster-327d"
+    name: "go-hello-world"
     labels:
-        app: "azurecluster-327d"
+        app: "go-hello-world"
 spec:
     type: LoadBalancer
     ports:
@@ -12,4 +12,4 @@ spec:
       protocol: TCP
       name: http
     selector:
-        app: "azurecluster-327d"
+        app: "go-hello-world"
