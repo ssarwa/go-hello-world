@@ -152,5 +152,5 @@ jobs:
           manifests/service.yml
         images: |
           ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.APP_NAME }}:${{ github.sha }}
-#        imagepullsecrets: |
-#          ${{ env.IMAGE_PULL_SECRET }}
+        imagepullsecrets: |
+          ${{ env.IMAGE_PULL_SECRET }}
