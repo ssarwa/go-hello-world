@@ -115,7 +115,7 @@ jobs:
         fi
 
     - name: Create Image Pull Secret
-      uses: azure/k8s-create-secret@v1
+      uses: azure/k8s-create-secret@v2
       with:
         namespace: ${{ env.NAMESPACE }}
         container-registry-url: ${{ env.REGISTRY_NAME }}.azurecr.io
