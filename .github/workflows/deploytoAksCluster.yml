@@ -101,6 +101,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build, inline-scan, push]
     steps:
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
     - uses: azure/k8s-set-context@v1
       id: login
       with:
@@ -108,6 +112,7 @@ jobs:
 
     - name: Create namespace
       run: |
+        echo ${{ needs.push.outputs.acrPassword }}
         namespacePresent=`kubectl get namespace | grep ${{ env.NAMESPACE }} | wc -l`
         if [ $namespacePresent -eq 0 ]
         then
