@@ -122,10 +122,12 @@ jobs:
     #     container-registry-username: ${{ needs.push.outputs.acrUsername }}
     #     container-registry-password: ${{ needs.push.outputs.acrPassword }}
     #     secret-name: ${{ env.IMAGE_PULL_SECRET }}
-
+    - name: Checkout Code
+      uses: actions/checkout@master
     - name: Replace Image
       run: |
-        echo sed -i -e 's|BUILT_IMAGE|${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.APP_NAME }}|g' manifests/deployment.yml
+        sed -i -e 's|BUILT_IMAGE|${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.APP_NAME }}|g' manifests/deployment.yml
+        cat manifests/deployment.yml
     
     # - name: Deploy to Kubernetes cluster
     #   uses: Azure/k8s-deploy@v3.1
