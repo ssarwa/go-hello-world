@@ -54,12 +54,28 @@ jobs:
         input-type: docker-archive
         input-path: /tmp/image.tar
 
-    - name: Scan Image New
+    - name: Download sysdig-cli-scanner if needed
+      run:  |
+        curl -sLO https://download.sysdig.com/scanning/sysdig-cli-scanner/latest_version.txt
+        mkdir -p /tmp/{db,cache}
+        if [ ! -f /tmp/cache/latest_version.txt ] || [ $(cat ./latest_version.txt) != $(cat /tmp/cache/latest_version.txt)]; then
+          cp ./latest_version.txt /tmp/cache/latest_version.txt
+          curl -sL -o /tmp/cache/sysdig-cli-scanner "https://download.sysdig.com/scanning/bin/sysdig-cli-scanner/$(cat /tmp/cache/latest_version.txt)/linux/amd64/sysdig-cli-scanner"
+          chmod +x /tmp/cache/sysdig-cli-scanner
+        fi
+    
+    - name: Scan image new
+      env:
+        SECURE_API_TOKEN: ${{ secrets.SECURE_API_TOKEN }}
       run: |
-        curl -LO "https://download.sysdig.com/scanning/bin/sysdig-cli-scanner/$(curl -L -s https://download.sysdig.com/scanning/sysdig-cli-scanner/latest_version.txt)/linux/amd64/sysdig-cli-scanner"
-        chmod +x ./sysdig-cli-scanner
-        docker load --input /tmp/image.tar
-        SECURE_API_TOKEN=${{ secrets.SYSDIG_SECURE_TOKEN }} ./sysdig-cli-scanner --apiurl ${{ env.SYSDIG_SECURE_URL }} ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.APP_NAME }}:${{ github.sha }}
+        /tmp/cache/sysdig-cli-scanner --apiurl $SYSDIG_SECURE_ENDPOINT file://tmp/image.tar --logfile=/tmp/sysdig-cli-scanner.log --output-json=/tmp/${APP_NAME}.json --dbpath=/tmp/cache/db/ --cachepath=/tmp/cache/scanner-cache/
+
+    #- name: Scan Image New
+    #  run: |
+    #    curl -LO "https://download.sysdig.com/scanning/bin/sysdig-cli-scanner/$(curl -L -s https://download.sysdig.com/scanning/sysdig-cli-scanner/latest_version.txt)/linux/amd64/sysdig-cli-scanner"
+    #    chmod +x ./sysdig-cli-scanner
+    #    docker load --input /tmp/image.tar
+    #    SECURE_API_TOKEN=${{ secrets.SYSDIG_SECURE_TOKEN }} ./sysdig-cli-scanner --apiurl ${{ env.SYSDIG_SECURE_URL }} ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.APP_NAME }}:${{ github.sha }}
 
     - name: Upload Sarif Report
       uses: github/codeql-action/upload-sarif@v1
