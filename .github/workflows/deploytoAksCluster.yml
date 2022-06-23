@@ -56,7 +56,7 @@ jobs:
     
     - name: Scan image new
       env:
-        SECURE_API_TOKEN: ${{ secrets.SECURE_API_TOKEN }}
+        SECURE_API_TOKEN: ${{ secrets.SYSDIG_SECURE_TOKEN }}
       run: |
         /tmp/cache/sysdig-cli-scanner --apiurl ${{ env.SYSDIG_SECURE_URL }} file://tmp/image.tar --logfile=/tmp/sysdig-cli-scanner.log --output-json=/tmp/${{ env.APP_NAME }}.json --dbpath=/tmp/cache/db/ --cachepath=/tmp/cache/scanner-cache/
 
