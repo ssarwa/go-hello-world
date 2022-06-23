@@ -44,16 +44,6 @@ jobs:
         name: image
         path: /tmp
 
-    - name: Scan image Old
-      id: scan
-      uses: sysdiglabs/scan-action@v3
-      with:
-        image-tag: ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.APP_NAME }}:${{ github.sha }}
-        sysdig-secure-token: ${{ secrets.SYSDIG_SECURE_TOKEN }}
-        sysdig-secure-url: ${{ env.SYSDIG_SECURE_URL }}
-        input-type: docker-archive
-        input-path: /tmp/image.tar
-
     - name: Download sysdig-cli-scanner if needed
       run:  |
         curl -sLO https://download.sysdig.com/scanning/sysdig-cli-scanner/latest_version.txt
@@ -68,7 +58,7 @@ jobs:
       env:
         SECURE_API_TOKEN: ${{ secrets.SECURE_API_TOKEN }}
       run: |
-        /tmp/cache/sysdig-cli-scanner --apiurl $SYSDIG_SECURE_ENDPOINT file://tmp/image.tar --logfile=/tmp/sysdig-cli-scanner.log --output-json=/tmp/${APP_NAME}.json --dbpath=/tmp/cache/db/ --cachepath=/tmp/cache/scanner-cache/
+        /tmp/cache/sysdig-cli-scanner --apiurl $SYSDIG_SECURE_ENDPOINT file://$(pwd)/tmp/image.tar --logfile=/tmp/sysdig-cli-scanner.log --output-json=/tmp/${APP_NAME}.json --dbpath=/tmp/cache/db/ --cachepath=/tmp/cache/scanner-cache/
 
     #- name: Scan Image New
     #  run: |
@@ -76,6 +66,16 @@ jobs:
     #    chmod +x ./sysdig-cli-scanner
     #    docker load --input /tmp/image.tar
     #    SECURE_API_TOKEN=${{ secrets.SYSDIG_SECURE_TOKEN }} ./sysdig-cli-scanner --apiurl ${{ env.SYSDIG_SECURE_URL }} ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.APP_NAME }}:${{ github.sha }}
+
+    - name: Scan image Old
+      id: scan
+      uses: sysdiglabs/scan-action@v3
+      with:
+        image-tag: ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.APP_NAME }}:${{ github.sha }}
+        sysdig-secure-token: ${{ secrets.SYSDIG_SECURE_TOKEN }}
+        sysdig-secure-url: ${{ env.SYSDIG_SECURE_URL }}
+        input-type: docker-archive
+        input-path: /tmp/image.tar
 
     - name: Upload Sarif Report
       uses: github/codeql-action/upload-sarif@v1
