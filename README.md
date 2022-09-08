@@ -1,3 +1,3 @@
 # go-hello-world
 Simple golang based hello world application
-Test # 1
+Test # 2
