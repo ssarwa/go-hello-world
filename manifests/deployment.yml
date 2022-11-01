@@ -21,6 +21,6 @@ spec:
             limits:
               memory: "128Mi"
               cpu: "500m"
-          image: "BUILT_IMAGE"
+          image: "goimage:v1"
           ports:
           - containerPort: 8080
