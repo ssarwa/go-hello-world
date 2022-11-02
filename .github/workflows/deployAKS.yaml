@@ -32,7 +32,8 @@ jobs:
                 tenant-id: ${{ secrets.AZURE_TENANT_ID }}
             
             - name: Build image to ACR
-              run: az acr build --image ${{ env.CONTAINER_NAME }}:${{ github.sha }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.ACR_RESOURCE_GROUP }} -f ./Dockerfile ./ --no-push
+              run: |
+                docker build . --file Dockerfile --tag ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.CONTAINER_NAME }}:${{ github.sha }}
 
             - name: Setup cache
               uses: actions/cache@v3
