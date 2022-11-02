@@ -31,7 +31,7 @@ jobs:
                 subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
                 tenant-id: ${{ secrets.AZURE_TENANT_ID }}
             
-            - name: Build image to ACR
+            - name: Build docker image
               run: |
                 docker build . --file Dockerfile --tag ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.CONTAINER_NAME }}:${{ github.sha }}
 
@@ -67,7 +67,9 @@ jobs:
 
             - name: Push the image if scan is Successful
               run: |
+                az acr login --name ${{ env.AZURE_CONTAINER_REGISTRY }}
                 docker push ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.CONTAINER_NAME }}:${{ github.sha }}
+    
     deploy:
         permissions:
             actions: read
