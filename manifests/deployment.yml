@@ -21,6 +21,6 @@ spec:
             limits:
               memory: "128Mi"
               cpu: "500m"
-          image: "goimage:v1"
+          image: "azsysdigcr.azurecr.io/goimage:v1"
           ports:
           - containerPort: 8080
