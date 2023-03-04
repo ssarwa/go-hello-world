@@ -41,4 +41,4 @@ stages:
       inputs:
         sysdigurl: 'https://us2.app.sysdig.com'
         apikey: '8b1d6715-acee-453c-92d9-86bb07b2a77d'
-        image: '$(imageName):$(tag)'
+        image: '$(imageRepository):$(tag)'
