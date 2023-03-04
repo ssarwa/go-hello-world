@@ -85,3 +85,13 @@ stages:
       displayName: Run the sysdig-cli-scanner
       env:
         SECURE_API_TOKEN: $(TOKEN)
+
+    - task: Docker@2
+      displayName: Push image to ACR is scan passes
+      inputs:
+        command: push
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
