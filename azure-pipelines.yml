@@ -41,17 +41,17 @@ stages:
           sysdig-cli-scanner-cache
         path: $(CACHE_FOLDER)
 
-    - task: Cache@2
-      displayName: Docker cache
-      inputs:
-        key: 'docker | "$(Agent.OS)" | cache'
-        path: $(Pipeline.Workspace)/docker
-        cacheHitVar: CACHE_RESTORED
+#    - task: Cache@2
+#      displayName: Docker cache
+#      inputs:
+#        key: 'docker | "$(Agent.OS)" | cache'
+#        path: $(Pipeline.Workspace)/docker
+#        cacheHitVar: CACHE_RESTORED
 
-    - script: |
-        docker load -i $(Pipeline.Workspace)/docker/cache.tar
-      displayName: Docker restore
-      condition: and(not(canceled()), eq(variables.CACHE_RESTORED, 'true'))
+#    - script: |
+#        docker load -i $(Pipeline.Workspace)/docker/cache.tar
+#      displayName: Docker restore
+#      condition: and(not(canceled()), eq(variables.CACHE_RESTORED, 'true'))
 
     - task: Docker@2
       displayName: Build an image
