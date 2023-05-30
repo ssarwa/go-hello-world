@@ -25,7 +25,7 @@ pipeline {
             VERSION=$(curl -L -s https://download.sysdig.com/scanning/sysdig-cli-scanner/latest_version.txt)
             curl -LO "https://download.sysdig.com/scanning/bin/sysdig-cli-scanner/${VERSION}/linux/amd64/sysdig-cli-scanner"
             chmod +x ./sysdig-cli-scanner
-            ./sysdig-cli-scanner --apiurl ${SYSDIG_ENDPOINT} docker://${DOCKER_REPOSITORY}
+            ./sysdig-cli-scanner --apiurl ${SYSDIG_ENDPOINT} docker://${DOCKER_REPOSITORY} --policy=testpolicy2
             '''
         }
       }
