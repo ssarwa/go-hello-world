@@ -16,7 +16,7 @@ pipeline {
     stage('Building image') {
       steps{
         script {
-          myimage = docker.build(image, "./")
+          sh "docker build -t srikantsarwa/gotest ."
         }
       }
     }
