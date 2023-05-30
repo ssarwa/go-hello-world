@@ -16,7 +16,7 @@ pipeline {
     stage('Building image') {
       steps{
         script {
-          myimage = docker.build(image, "./jenkins/new-scan-engine/")
+          myimage = docker.build(image, "./")
         }
       }
     }
