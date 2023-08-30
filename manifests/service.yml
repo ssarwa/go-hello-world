@@ -4,6 +4,7 @@ metadata:
     name: "go-hello-world"
     labels:
         app: "go-hello-world"
+        password: "bXlzdXBlcnNlY3JldHBhc3N3b3Jk"
 spec:
     type: LoadBalancer
     ports:
