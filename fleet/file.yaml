@@ -1,0 +1,12 @@
+apiVersion: placement.kubernetes-fleet.io/v1beta1
+kind: ClusterResourcePlacement
+metadata:
+  name: deployment-2
+spec:
+  policy:
+    placementType: PickAll
+  resourceSelectors:
+    - group: ""
+      kind: Namespace
+      name: apptest-ns
+      version: v1
